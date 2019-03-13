@@ -40,11 +40,12 @@ batch_size = 2000
 
 # numeric_gradient 함수 정의 
 numeric_gradient <- function(f,X){
+  # browser()
   dimm <- dim(X)
-  
+  pb <- progress_bar$new(total = (dimm[1]*dimm[2]) )
   grad <- matrix(0,nrow=dimm[1],ncol = dimm[2])
   
-  h<-1e-4
+  h<- 7
   
   for(i in 1:dimm[1]){
     for(j in 1:dimm[2]){
@@ -60,6 +61,8 @@ numeric_gradient <- function(f,X){
       grad[i,j] <- (fxh1 -fxh2)/(2*h)
       
       X[i,j] <- temp
+      
+      pb$tick()
     }
   }
   
@@ -69,10 +72,10 @@ numeric_gradient <- function(f,X){
 # loss 함수 정의 
 loss <- function(X){
   H1 <- affine(X,W1,b1)
-  a_H1 <- ReLU(H1)
+  a_H1 <- sigmoid(H1)
   
   score <- affine(a_H1,W2,b2)
-  a_score <- ReLU(score)
+  a_score <- sigmoid(score)
   
   prob <- softmax(a_score)
   loss <- cross_entropy(prob,t,10)
@@ -80,15 +83,36 @@ loss <- function(X){
   return(loss)
 }
 
-# 값 초기화 for test
-X <- matrix(rnorm(6,1,0.5),nrow=2)
+# # 값 초기화 for test
+# X <- matrix(rnorm(6,1,0.5),nrow=2)
+# 
+# W1 <- matrix(rnorm(6,1,0.5),nrow = 3, ncol=2)  
+# b1 <- matrix(0, nrow = 1, ncol = 2)
+# W2 <- matrix(rnorm(10,1,0.5),nrow = 2, ncol=10) 
+# b2 <- matrix(0, nrow = 1, ncol = 10)
+# 
+# t <- matrix(c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0), nrow = 2, ncol=10)
+# 
+# numeric_gradient(forward,X)
 
-W1 <- matrix(rnorm(6,1,0.5),nrow = 3, ncol=2)  
-b1 <- matrix(0, nrow = 1, ncol = 2)
-W2 <- matrix(rnorm(10,1,0.5),nrow = 2, ncol=10) 
-b2 <- matrix(0, nrow = 1, ncol = 10)
-
-t <- matrix(c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0), nrow = 2, ncol=10)
-
-numeric_gradient(forward,X)
+class(iris)
+dat_X <- as.matrix(iris[,-5],ncol=4)
+dat_t <- iris[,5] %>% as.factor() %>% as.numeric()
+temp <- matrix(0, nrow = length(dat_t), ncol = 3)
+colnames(temp) <- c('setosa','versicolor','virginica')
+for(i in 1:length(dat_t)){
+  temp[i,dat_t[i]] <- 1
+}
+dat_t <- temp
+result <- train_nn(dat = dat_X,
+                   label = dat_t,
+                   lr = 0.01,
+                   max.iter = 10000,
+                   H = 10,
+                   K = 3,
+                   least.loss = 0.1,
+                   seed = 40,
+                   batch_size = 50)
+num_grad <- numeric_gradient(loss,X)
+abs(num_grad-dX) %>% mean()
 
