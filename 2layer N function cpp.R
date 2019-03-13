@@ -21,9 +21,9 @@ train_nn <- function(dat,label,lr,max.iter,H,K,least.loss,seed=1,batch_size){
   C <- ncol(X)
 
   set.seed(seed)
-  W1 <- matrix(rnorm(C*H,1,0.5),nrow = C, ncol=H)  
+  W1 <- matrix(rnorm(C*H,0,0.1),nrow = C, ncol=H)  
   b1 <- matrix(0, nrow = 1, ncol = H)
-  W2 <- matrix(rnorm(H*K,1,0.5),nrow = H, ncol=K)  
+  W2 <- matrix(rnorm(H*K,0,0.1),nrow = H, ncol=K)  
   b2 <- matrix(0, nrow = 1, ncol = K)
   
   summary_nn <- c()
@@ -46,9 +46,10 @@ train_nn <- function(dat,label,lr,max.iter,H,K,least.loss,seed=1,batch_size){
     a_score <- ReLU(score)
     
     prob <- softmax(a_score)
+    loss <- cross_entropy(prob,t,N)   # loss
     
-    # find loss and accuracy
-    loss <- cross_entropy(prob,t,N)
+    
+    # find accuracy
     temp <- ( apply(prob,1,which.max) == apply(t,1,which.max) ) %>% sum()
     accuracy <- temp / N
     
@@ -83,7 +84,7 @@ train_nn <- function(dat,label,lr,max.iter,H,K,least.loss,seed=1,batch_size){
     pb$tick()
   }
   
-  # ??ï¿½ï¿½ ????
+  # save result
   summary_nn <- matrix(summary_nn, ncol = 2,byrow = T)
   colnames(summary_nn) <- c('loss', 'accuracy')
   
@@ -92,20 +93,20 @@ train_nn <- function(dat,label,lr,max.iter,H,K,least.loss,seed=1,batch_size){
   return(result)
 }
 #####################################
-# predict ?Ô¼?
+# predict function
 predict_nn <- function(model, dat){
-  H1 <- affine(dat,model$W1,model$b1) %>% sigmoid()
-  score <- affine(H1,model$W2,model$b2) %>% sigmoid()
+  H1 <- affine(dat,model$W1,model$b1) %>% ReLU()
+  score <- affine(H1,model$W2,model$b2) %>% ReLU()
   
   prob <- softmax(score)
   
-  Y <- apply(prob, 1, which.max)-1 # idx?? 0?? ?Æ´? 1???? ?????Ï¹Ç·? -1
+  Y <- apply(prob, 1, which.max)-1 # idx°¡ 0ÀÌ ¾Æ´Ñ 1¿¡¼­ ½ÃÀÛÇÏ¹Ç·Î -1
   
   return(Y)
 }
 #####################################
 # read data
-dat <- fread('C:/Users/NVR-/Desktop/?? ????/mnist_train.csv')
+dat <- fread('C:/Users/yrhot/Downloads/mnist-in-csv/mnist_train.csv')
 dim(dat)
 class(dat)
 
@@ -123,7 +124,7 @@ for(i in 1:length(dat_t)){
 }
 dat_t <- temp
 
-# training set ????
+# training set
 test_idx <- sample(1:60000, 10000)
 
 train_x <- dat_X[-test_idx,]
@@ -132,25 +133,25 @@ train_t <- dat_t[-test_idx,]
 test_x <- dat_X[test_idx,]
 test_t <- dat_t[test_idx,]
 
-# ?Ð½?
+# train
 result <- train_nn(dat = train_x,
                    label = train_t,
-                   lr = 0.000005,
+                   lr = 0.00001,
                    max.iter = 10000,
                    H = 100,
                    K = 10,
                    least.loss = 0.1,
                    seed = 40,
-                   batch_size = 2000)
+                   batch_size = 200)
 
 
-plot(result$result[,1], pch = 20, type = 'l')
+plot(result$result[,2], pch = 20, type = 'l')
 
-# ????
-label_nn <- predict_nn(result, test_x) + 1 # label?? one hot coding ?Ì¹Ç·? ?Ù½? +1
+# predict
+label_nn <- predict_nn(result, test_x) + 1  # labelÀÌ one hot coding ÀÌ¹Ç·Î ´Ù½Ã +1
 ((label_nn == apply(test_t,1,which.max)) %>% sum())/10000
 
-# ?Ð½?
+# train
 result2 <- train_nn(dat = train_x,
                    label = train_t,
                    lr = 0.02,
@@ -163,6 +164,6 @@ result2 <- train_nn(dat = train_x,
 
 plot(result2$result[,2], pch = 20, type = 'l')
 
-# ????
-label_nn2 <- predict_nn(result2, test_x) + 1 # label?? one hot coding ?Ì¹Ç·? ?Ù½? +1
+# predict
+label_nn2 <- predict_nn(result2, test_x) + 1  # labelÀÌ one hot coding ÀÌ¹Ç·Î ´Ù½Ã +1
 ((label_nn2 == apply(test_t,1,which.max)) %>% sum())/10000
