@@ -91,3 +91,4 @@ b2 <- matrix(0, nrow = 1, ncol = 10)
 t <- matrix(c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0), nrow = 2, ncol=10)
 
 numeric_gradient(forward,X)
+

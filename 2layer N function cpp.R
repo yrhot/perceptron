@@ -4,6 +4,7 @@ library(progress)
 library(Rcpp)
 sourceCpp("C:/Users/yrhot/Desktop/perceptron/perceptron/test.cpp")
 
+
 #####################################
 # activation function
 # ReLU function
