@@ -37,40 +37,37 @@ least.loss = 0.1;
 seed = 40;
 batch_size = 2000
 
-X <- matrix(rnorm(6,1,0.5),nrow=2)
 
-W1 <- matrix(rnorm(6,1,0.5),nrow = 3, ncol=2)  
-b1 <- matrix(0, nrow = 1, ncol = 2)
-W2 <- matrix(rnorm(10,1,0.5),nrow = 2, ncol=10) 
-b2 <- matrix(0, nrow = 1, ncol = 10)
-
-t <- matrix(c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0), nrow = 2, ncol=10)
-
-dimm <- dim(X)
-
-grad <- matrix(0,nrow=dimm[1],ncol = dimm[2])
-
-h<-1e-4
-
-for(i in 1:dimm[1]){
-  for(j in 1:dimm[2]){
-    # f(x+h) 
-    temp <- X[i,j]
-    X[i,j] <- temp + h
-    fxh1 <- forward(X)
-    
-    # f(x-h)
-    X[i,j] <- temp - h
-    fxh2 <- forward(X)
-    
-    grad[i,j] <- (fxh1 -fxh2)/(2*h)
-    
-    X[i,j] <- temp
+# numeric_gradient 함수 정의 
+numeric_gradient <- function(f,X){
+  dimm <- dim(X)
+  
+  grad <- matrix(0,nrow=dimm[1],ncol = dimm[2])
+  
+  h<-1e-4
+  
+  for(i in 1:dimm[1]){
+    for(j in 1:dimm[2]){
+      # f(x+h) 
+      temp <- X[i,j]
+      X[i,j] <- temp + h
+      fxh1 <- f(X)
+      
+      # f(x-h)
+      X[i,j] <- temp - h
+      fxh2 <- f(X)
+      
+      grad[i,j] <- (fxh1 -fxh2)/(2*h)
+      
+      X[i,j] <- temp
+    }
   }
+  
+  return(grad)
 }
 
-
-forward <- function(X){
+# loss 함수 정의 
+loss <- function(X){
   H1 <- affine(X,W1,b1)
   a_H1 <- ReLU(H1)
   
@@ -82,4 +79,15 @@ forward <- function(X){
   
   return(loss)
 }
-forward(X)
+
+# 값 초기화 for test
+X <- matrix(rnorm(6,1,0.5),nrow=2)
+
+W1 <- matrix(rnorm(6,1,0.5),nrow = 3, ncol=2)  
+b1 <- matrix(0, nrow = 1, ncol = 2)
+W2 <- matrix(rnorm(10,1,0.5),nrow = 2, ncol=10) 
+b2 <- matrix(0, nrow = 1, ncol = 10)
+
+t <- matrix(c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0), nrow = 2, ncol=10)
+
+numeric_gradient(forward,X)

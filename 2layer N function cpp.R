@@ -2,8 +2,7 @@ library(data.table)
 library(tidyr)
 library(progress)
 library(Rcpp)
-sourceCpp("C:/Users/yrhot/Desktop/perceptron/test.cpp")
-
+sourceCpp("C:/Users/yrhot/Desktop/perceptron/perceptron/test.cpp")
 
 #####################################
 # activation function
