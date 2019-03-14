@@ -21,9 +21,9 @@ train_nn <- function(dat,label,lr,max.iter,H,K,least.loss,seed=1,batch_size){
   C <- ncol(X)
 
   set.seed(seed)
-  W1 <- matrix(rnorm(C*H,0,0.1),nrow = C, ncol=H)  
+  W1 <- matrix(rnorm(C*H,1,0.1),nrow = C, ncol=H)  
   b1 <- matrix(0, nrow = 1, ncol = H)
-  W2 <- matrix(rnorm(H*K,0,0.1),nrow = H, ncol=K)  
+  W2 <- matrix(rnorm(H*K,1,0.1),nrow = H, ncol=K)  
   b2 <- matrix(0, nrow = 1, ncol = K)
   
   summary_nn <- c()
@@ -136,16 +136,16 @@ test_t <- dat_t[test_idx,]
 # train
 result <- train_nn(dat = train_x,
                    label = train_t,
-                   lr = 0.00001,
+                   lr = 0.000005,
                    max.iter = 10000,
-                   H = 100,
+                   H = 80,
                    K = 10,
                    least.loss = 0.1,
                    seed = 40,
-                   batch_size = 200)
+                   batch_size = 1000)
 
 
-plot(result$result[,2], pch = 20, type = 'l')
+plot(result$result[,1], pch = 20, type = 'l')
 
 # predict
 label_nn <- predict_nn(result, test_x) + 1  # label이 one hot coding 이므로 다시 +1
